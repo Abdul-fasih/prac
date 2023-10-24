@@ -1,0 +1,19 @@
+name: Copy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  copy_to_ec2:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Copy code to EC2
+      run: |
+        ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ubuntu@${{ secrets.EC2_IP }} "mkdir -p /home/youruser/yourapp"
+        scp -i ${{ secrets.SSH_PRIVATE_KEY }} -r . ubuntu@${{ secrets.EC2_IP }}:/home/youruser/yourapp
