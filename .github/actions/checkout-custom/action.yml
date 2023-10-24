@@ -1,0 +1,12 @@
+name: 'Custom Checkout'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      run: echo ::set-output name=node-version::16
+    - name: Checkout code
+      run: |
+        git fetch --no-tags --prune --depth=1 origin +refs/heads/main:refs/remotes/origin/main
+        git checkout refs/remotes/origin/main
+        git config --local gc.auto 0
