@@ -8,20 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]  # Specify the Node.js version you want to use
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
+      - name: Create SSH directory
+        run: mkdir -p ~/.ssh
+
+      - name: Add GitHub.com to known_hosts
+        run: ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Add your EC2 instance to known_hosts
+        run: ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
 
       - name: Copy code to EC2
-        run: |
-          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
-          scp -r -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no ./* ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/copy_paste
+        run: scp -r -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no ./* ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/copy_paste
